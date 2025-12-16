@@ -1,0 +1,32 @@
+version: "3.9"
+services:
+  app:
+    build: .
+    container_name: prueba
+    ports:
+      - "3000:3000"
+    depends_on:
+      - monguito
+    networks:
+      - mired
+  monguito:
+    image: mongo
+    container_name: monguito
+    ports:
+      - "27017:27017"
+    environment:
+      - MONGO_INITDB_ROOT_USERNAME=daniel
+      - MONGO_INITDB_ROOT_PASSWORD=password
+    networks:
+      - mired
+    volumes:
+      - mongo-data:/data/db
+      # mysql -> /var/lib/mysql
+      # postgres -> /var/lib/postgresql/data
+
+networks:
+  mired:
+    driver: bridge
+
+volumes:
+  mongo-data:

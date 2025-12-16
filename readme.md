@@ -302,10 +302,19 @@ CMD ["node", "index.js"]
 ### Archivo docker-compose.yml
 
 ```yaml
-version: '3.8'
+version: "3.9"
 
 services:
-  # Servicio de MongoDB
+  app:
+    build: .
+    container_name: prueba
+    ports:
+      - "3000:3000"
+    depends_on:
+      - monguito
+    networks:
+      - mired
+
   monguito:
     image: mongo
     container_name: monguito
@@ -318,19 +327,6 @@ services:
       - mired
     volumes:
       - mongo-data:/data/db
-
-  # Servicio de la aplicación Node.js
-  app:
-    build: .
-    container_name: prueba
-    ports:
-      - "3000:3000"
-    depends_on:
-      - monguito
-    networks:
-      - mired
-    environment:
-      - MONGO_URL=mongodb://daniel:password@monguito:27017/miapp?authSource=admin
 
 networks:
   mired:

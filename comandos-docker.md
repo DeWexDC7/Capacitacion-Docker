@@ -113,3 +113,133 @@ docker rmi miapp:practica
 # Eliminar red
 docker network rm mired
 ```
+
+---
+
+## Docker Compose
+
+### ¿Qué es Docker Compose?
+Docker Compose es una herramienta para definir y ejecutar aplicaciones Docker multi-contenedor. Usa un archivo YAML (`docker-compose.yml`) para configurar todos los servicios de la aplicación.
+
+### Archivo docker-compose.yml
+
+```yaml
+version: "3.9"
+services:
+  app:
+    build: .
+    container_name: prueba
+    ports:
+      - "3000:3000"
+    depends_on:
+      - monguito
+    networks:
+      - mired
+  monguito:
+    image: mongo
+    container_name: monguito
+    ports:
+      - "27017:27017"
+    environment:
+      - MONGO_INITDB_ROOT_USERNAME=daniel
+      - MONGO_INITDB_ROOT_PASSWORD=password
+    networks:
+      - mired
+    volumes:
+      - mongo-data:/data/db
+
+networks:
+  mired:
+    driver: bridge
+
+volumes:
+  mongo-data:
+```
+
+### Comandos de Docker Compose
+
+#### Iniciar todos los servicios
+```bash
+docker-compose up
+```
+Crea y inicia todos los servicios definidos en el archivo.
+
+#### Iniciar en modo detached (segundo plano)
+```bash
+docker-compose up -d
+```
+Inicia todos los servicios en background.
+
+#### Reconstruir e iniciar servicios
+```bash
+docker-compose up --build
+```
+Reconstruye las imágenes antes de iniciar los servicios.
+
+#### Detener todos los servicios
+```bash
+docker-compose down
+```
+Detiene y elimina contenedores, redes creadas por up.
+
+#### Ver estado de los servicios
+```bash
+docker-compose ps
+```
+Muestra el estado de todos los servicios.
+
+#### Ver logs de todos los servicios
+```bash
+docker-compose logs
+```
+
+#### Ver logs de un servicio específico
+```bash
+docker-compose logs app
+docker-compose logs monguito
+```
+
+#### Ver logs en tiempo real
+```bash
+docker-compose logs -f
+```
+
+#### Reconstruir servicios
+```bash
+docker-compose build
+```
+Reconstruye las imágenes de los servicios.
+
+#### Ejecutar comando en un servicio
+```bash
+docker-compose exec app sh
+docker-compose exec monguito mongosh
+```
+
+### Ventajas de Docker Compose
+
+✅ **Simplicidad**: Un solo comando para levantar toda la aplicación
+✅ **Configuración centralizada**: Todo en un archivo YAML
+✅ **Gestión de dependencias**: Controla el orden de inicio con `depends_on`
+✅ **Redes automáticas**: Crea redes y conecta servicios automáticamente
+✅ **Volúmenes persistentes**: Mantiene datos entre reinicios
+✅ **Escalabilidad**: Fácil de escalar servicios
+
+### Comparación: Comandos manuales vs Docker Compose
+
+**Comandos manuales (muchos pasos):**
+```bash
+docker network create mired
+docker create -p27017:27017 --name monguito --network mired -e MONGO_INITDB_ROOT_USERNAME=daniel -e MONGO_INITDB_ROOT_PASSWORD=password mongo
+docker start monguito
+docker build -t miapp:practica .
+docker create -p3000:3000 --name prueba --network mired miapp:practica
+docker start prueba
+```
+
+**Docker Compose (un solo comando):**
+```bash
+docker-compose up -d
+```
+
+🎯 **Usa Docker Compose para proyectos con múltiples contenedores!**
