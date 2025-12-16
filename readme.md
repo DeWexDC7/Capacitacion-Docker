@@ -271,11 +271,17 @@ RUN mkdir -p /home/app
 # Copiar archivos del host al contenedor
 COPY . /home/app
 
+# Establecer directorio de trabajo
+WORKDIR /home/app
+
+# Instalar dependencias
+RUN npm install
+
 # Exponer puerto en el que la aplicación escuchará
 EXPOSE 3000
 
 # Comando que se ejecuta al iniciar el contenedor
-CMD ["node", "/home/app/index.js"]
+CMD ["node", "index.js"]
 ```
 
 ### Explicación de las instrucciones:
@@ -283,6 +289,7 @@ CMD ["node", "/home/app/index.js"]
 - **FROM**: Define la imagen base. En este caso, Node.js versión 18.
 - **RUN**: Ejecuta comandos durante la construcción de la imagen (ej: crear directorios, instalar paquetes).
 - **COPY**: Copia archivos/directorios desde el host al sistema de archivos del contenedor.
+- **WORKDIR**: Establece el directorio de trabajo para las instrucciones siguientes.
 - **EXPOSE**: Documenta qué puerto usa la aplicación (informativo, no abre el puerto automáticamente).
 - **CMD**: Define el comando predeterminado que se ejecuta cuando el contenedor inicia.
 
@@ -305,8 +312,8 @@ services:
     ports:
       - "27017:27017"
     environment:
-      - MONGO_INITDB_ROOT_USERNAME=admin
-      - MONGO_INITDB_ROOT_PASSWORD=pass
+      - MONGO_INITDB_ROOT_USERNAME=daniel
+      - MONGO_INITDB_ROOT_PASSWORD=password
     networks:
       - mired
     volumes:
@@ -315,7 +322,7 @@ services:
   # Servicio de la aplicación Node.js
   app:
     build: .
-    container_name: chanchito
+    container_name: prueba
     ports:
       - "3000:3000"
     depends_on:
@@ -323,7 +330,7 @@ services:
     networks:
       - mired
     environment:
-      - MONGO_URL=mongodb://admin:pass@monguito:27017/miapp?authSource=admin
+      - MONGO_URL=mongodb://daniel:password@monguito:27017/miapp?authSource=admin
 
 networks:
   mired:
@@ -416,7 +423,7 @@ const Animal = mongoose.model('Animal', new mongoose.Schema({
 const app = express()
 
 // Conectar a MongoDB usando el nombre del contenedor
-mongoose.connect('mongodb://admin:pass@monguito:27017/miapp?authSource=admin')
+mongoose.connect('mongodb://daniel:password@monguito:27017/miapp?authSource=admin')
 
 // Ruta para listar animales
 app.get('/', async (_req, res) => {
@@ -444,19 +451,19 @@ docker network create mired
 
 # 2. Crear y ejecutar MongoDB
 docker create -p27017:27017 --name monguito --network mired \
-  -e MONGO_INITDB_ROOT_USERNAME=admin \
-  -e MONGO_INITDB_ROOT_PASSWORD=pass \
+  -e MONGO_INITDB_ROOT_USERNAME=daniel \
+  -e MONGO_INITDB_ROOT_PASSWORD=password \
   mongo
 
 docker start monguito
 
 # 3. Construir imagen de la aplicación
-docker build -t miapp:latest .
+docker build -t miapp:practica .
 
 # 4. Crear y ejecutar aplicación
-docker create -p3000:3000 --name chanchito --network mired miapp:latest
+docker create -p3000:3000 --name prueba --network mired miapp:practica
 
-docker start chanchito
+docker start prueba
 ```
 
 #### Opción 2: Con Docker Compose (Recomendado)
