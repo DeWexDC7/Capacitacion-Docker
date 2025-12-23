@@ -8,7 +8,10 @@ const Animal = mongoose.model('Animal', new mongoose.Schema({
 
 const app = express()
 
-mongoose.connect('mongodb://daniel:password@monguito:27017/miapp?authSource=admin')
+// Usar variable de entorno o localhost por defecto para desarrollo local
+const MONGODB_URI = process.env.MONGODB_URI || 'mongodb://daniel:password@localhost:27017/miapp?authSource=admin'
+
+mongoose.connect(MONGODB_URI)
 
 app.get('/', async (_req, res) => {
   console.log('listando... chanchitos...')
