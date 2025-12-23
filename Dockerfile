@@ -1,16 +1,22 @@
-FROM node:18
+FROM node:25
 
-RUN mkdir -p /home/app
+# Crear directorio de trabajo
+RUN mkdir -p /home/app 
 
-COPY . /home/app
-
+# Establecer directorio de trabajo
 WORKDIR /home/app
 
+# Copiar package.json primero (mejor para caché de Docker)
+COPY package*.json ./
+
+# Instalar dependencias
 RUN npm install
 
-EXPOSE 3000
+# Copiar el resto de los archivos
+COPY . .
 
+# Exponer puerto
+EXPOSE 3000 
+
+# Comando para ejecutar la aplicación
 CMD ["node", "index.js"]
-
-
-
